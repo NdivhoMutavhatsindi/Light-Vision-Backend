@@ -1,0 +1,393 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Admin {
+  admin_id      String   @id @default(uuid())
+  email         String   @unique
+  password_hash String
+  created_at    DateTime @default(now())
+  last_login    DateTime?
+
+  @@map("admins")
+}
+
+model BondApplication {
+  bond_application_id String   @id @default(uuid())
+
+  first_name String
+  last_name  String
+
+  email String
+  phone String
+
+  id_number String
+
+  marital_status   String?
+  employment_status String?
+  employer_name    String?
+
+  base_salary          Decimal @db.Decimal(12, 2)
+  allowances           Decimal @db.Decimal(12, 2)
+  other_income         Decimal @db.Decimal(12, 2)
+  gross_income         Decimal @db.Decimal(12, 2)
+
+  monthly_expenses     Decimal @db.Decimal(12, 2)
+
+  available_for_bond   Decimal @db.Decimal(12, 2)
+
+  debt_to_income_ratio Decimal @db.Decimal(5, 2)
+
+  disposable_income    Decimal @db.Decimal(12, 2)
+
+  created_at DateTime @default(now())
+
+  @@map("bond_applications")
+}
+
+model ClientRequest {
+  request_id   String   @id @default(uuid())
+  request_type String
+  reference_id String
+  client_email String
+  status       String
+  created_at   DateTime @default(now())
+
+  @@map("client_requests")
+}
+
+model PrequalificationApplication {
+  prequalification_id String   @id @default(uuid())
+
+  first_name String
+  last_name  String
+  id_number  String
+
+  marital_status String?
+  email           String
+  phone           String
+
+  employment_status String
+  employer_name     String?
+
+  gross_monthly_income Decimal @db.Decimal(12, 2)
+  monthly_expenses     Decimal @db.Decimal(12, 2)
+
+  property_type String?
+  price_range   String?
+
+  deposit_available Decimal @db.Decimal(12, 2)
+
+  status String @default("pending")
+
+  created_at DateTime @default(now())
+
+  @@map("prequalification_applications")
+}
+
+model ComplianceRequest {
+  compliance_request_id String   @id @default(uuid())
+
+  first_name String
+  last_name  String
+
+  email String
+  phone String
+
+  message String
+
+  status String @default("pending")
+
+  created_at DateTime @default(now())
+
+  @@map("compliance_requests")
+}
+
+model ValuationRequest {
+  valuation_request_id String   @id @default(uuid())
+
+  first_name String
+  last_name  String
+
+  email String
+  phone String
+
+  property_address String
+  property_type    String
+
+  floor_area Int?
+  erf_size   Int?
+
+  bedrooms Int?
+  bathrooms Int?
+  garages   Int?
+
+  year_built        Int?
+  property_condition String?
+
+  swimming_pool  Boolean @default(false)
+  solar_power    Boolean @default(false)
+  home_theatre   Boolean @default(false)
+  wine_cellar    Boolean @default(false)
+  smart_home     Boolean @default(false)
+  staff_quarters Boolean @default(false)
+  generator      Boolean @default(false)
+  borehole       Boolean @default(false)
+
+  preferred_contact String?
+
+  message String?
+
+  status String @default("pending")
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("valuation_requests")
+}
+
+model LegalRequest {
+  legal_request_id String   @id @default(uuid())
+
+  first_name String
+  last_name  String
+
+  email String
+  phone String
+
+  message String
+
+  status String @default("pending")
+
+  created_at DateTime @default(now())
+
+  @@map("legal_advice_requests")
+}
+
+enum JobApplicationStatus {
+  PENDING
+  REVIEWED
+  REJECTED
+  ACCEPTED
+
+  @@map("JobApplicationStatus")
+}
+
+enum EmploymentType {
+  fulltime
+  parttime
+  temporary
+  contract
+  internship
+
+  @@map("EmploymentType")
+}
+
+model Career {
+  career_id String @id @default(uuid()) @db.Uuid
+
+  title String
+  location String
+
+  employment_type EmploymentType @default(fulltime)
+
+  description String
+
+  is_active Boolean @default(true)
+
+  created_at DateTime @default(now())
+
+  JobApplication JobApplication[]
+
+  @@map("careers")
+}
+
+model JobApplication {
+  application_id String @id @default(uuid()) @db.Uuid
+
+  career_id String @db.Uuid
+
+  first_name String
+  last_name String
+
+  email String
+  phone String
+
+  cv_url String
+  cover_letter String?
+
+  status JobApplicationStatus @default(PENDING)
+
+  created_at DateTime @default(now())
+
+  career Career @relation(fields: [career_id], references: [career_id], onDelete: Cascade)
+
+  @@map("job_applications")
+}
+
+enum PropertyStatus {
+  available
+  sold
+  pending
+  rented
+  inactive
+
+  @@map("PropertyStatus")
+}
+
+model Property {
+  property_id String @id @default(uuid()) @db.Uuid
+
+  title String
+  description String
+
+  location String
+
+  bedrooms Int
+  bathrooms Int
+
+  price Decimal @db.Decimal(12, 2)
+
+  property_type String
+
+  status PropertyStatus @default(available)
+
+  featured Boolean @default(false)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  images PropertyImage[]
+  inquiries PropertyInquiry[]
+  offers Offer[]
+
+  @@map("properties")
+}
+
+model PropertyImage {
+  image_id String @id @default(uuid()) @db.Uuid
+
+  property_id String @db.Uuid
+
+  image_url String
+
+  is_primary Boolean @default(false)
+
+  display_order Int @default(0)
+
+  created_at DateTime @default(now())
+
+  property Property @relation(fields: [property_id], references: [property_id], onDelete: Cascade)
+
+  @@map("property_images")
+}
+
+enum InquiryStatus {
+  pending
+  responded
+  closed
+
+  @@map("InquiryStatus")
+}
+
+model PropertyInquiry {
+  inquiry_id String @id @default(uuid()) @db.Uuid
+
+  property_id String @db.Uuid
+
+  first_name String
+  last_name String
+
+  email String
+  phone String
+
+  message String
+
+  status InquiryStatus @default(pending)
+
+  created_at DateTime @default(now())
+
+  property Property @relation(fields: [property_id], references: [property_id], onDelete: Cascade)
+
+  @@map("property_inquiries")
+}
+
+model ContactInquiry {
+  inquiry_id String @id @default(uuid()) @db.Uuid
+
+  name    String
+  email   String
+  phone   String?
+  subject String
+  message String
+
+  status InquiryStatus @default(pending)
+
+  created_at DateTime @default(now())
+
+  @@map("contact_inquiries")
+}
+
+enum OfferStatus {
+  pending
+  accepted
+  rejected
+
+  @@map("OfferStatus")
+}
+
+model Offer {
+  offer_id String @id @default(uuid()) @db.Uuid
+
+  property_id String @db.Uuid
+
+  first_name String
+  last_name String
+
+  email String
+  phone String
+
+  offer_document_url String
+
+  offer_amount Decimal @db.Decimal(12, 2)
+
+  message String?
+
+  status OfferStatus @default(pending)
+
+  created_at DateTime @default(now())
+
+  property Property @relation(fields: [property_id], references: [property_id], onDelete: Cascade)
+
+  @@map("offer")
+}
+
+model Agent {
+  agent_id String @id @default(uuid()) @db.Uuid
+
+  first_name String
+  last_name String
+
+  email String? @unique
+
+  phone String?
+
+  facebook_url String?
+  instagram_url String?
+  whatsapp_url String?
+  twitter_url String?
+  linkedin_url String?
+
+  profile_image String?
+
+  bio String?
+
+  created_at DateTime @default(now())
+
+  @@map("agents")
+}
