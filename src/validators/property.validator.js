@@ -15,5 +15,13 @@ export const createPropertySchema = joi.object({
 
     property_type: joi.string().required(),
 
-    status: joi.string().valid("available", "sold", "pending", "rented", "inactive").default("available")
+    status: joi.string().valid(
+      "for_sale",
+      "for_rent",
+      "sold",
+      "pending",
+      "rented",
+      "under_offer",
+      "price_adjusted"
+    ).default("for_sale")
 });

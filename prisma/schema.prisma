@@ -231,11 +231,13 @@ model JobApplication {
 }
 
 enum PropertyStatus {
-  available
+  for_sale
+  for_rent
   sold
   pending
   rented
-  inactive
+  under_offer
+  price_adjusted
 
   @@map("PropertyStatus")
 }
@@ -255,7 +257,7 @@ model Property {
 
   property_type String
 
-  status PropertyStatus @default(available)
+  status PropertyStatus @default(for_sale)
 
   featured Boolean @default(false)
 
@@ -364,7 +366,7 @@ model Offer {
 
   property Property @relation(fields: [property_id], references: [property_id], onDelete: Cascade)
 
-  @@map("offer")
+  @@map("offers")
 }
 
 model Agent {

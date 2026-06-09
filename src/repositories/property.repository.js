@@ -8,11 +8,6 @@ export const createProperty = async (data) => {
 
 export const getAllProperties = async () => {
   const properties = await prisma.property.findMany({
-    where: {
-      status: {
-        not: "inactive",
-      },
-    },
     include: {
       images: {
         orderBy: [
