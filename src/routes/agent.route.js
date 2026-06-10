@@ -38,11 +38,13 @@ router.patch(
 
 router.get(
   "/",
+  protectAdmin,
   agentController.getAllAgents
 );
 
 router.get(
   "/:id",
+  protectAdmin,
   agentController.getAgentById
 );
 
