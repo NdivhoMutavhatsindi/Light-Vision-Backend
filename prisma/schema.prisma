@@ -367,7 +367,7 @@ model Offer {
 
   property Property @relation(fields: [property_id], references: [property_id], onDelete: Cascade)
 
-  @@map("offers")
+  @@map("offer")
 }
 
 model Agent {

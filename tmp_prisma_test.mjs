@@ -5,8 +5,10 @@ const prisma = new PrismaClient();
 
 (async ()=>{
   try{
-    const p = await prisma.property.findMany();
-    console.log('OK', p.length);
+    const offers = await prisma.offer.findMany({ take: 1 });
+    console.log('offer rows:', offers.length);
+    const properties = await prisma.property.findMany({ take: 1 });
+    console.log('property rows:', properties.length);
   }catch(e){
     console.error(e);
   }finally{
