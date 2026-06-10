@@ -7,57 +7,117 @@ export const createProperty = async (data) => {
 };
 
 export const getAllProperties = async () => {
-  const properties = await prisma.property.findMany({
-    include: {
-      images: {
-        orderBy: [
-          { is_primary: "desc" },
-          { display_order: "asc" }
-        ]
+  try {
+    const properties = await prisma.property.findMany({
+      include: {
+        images: {
+          orderBy: [
+            { is_primary: "desc" },
+            { display_order: "asc" }
+          ]
+        },
+        inquiries: true,
+        offers: true,
       },
-      inquiries: true,
-      offers: true,
-    },
-    orderBy: {
-      created_at: "desc",
-    },
-  });
+      orderBy: {
+        created_at: "desc",
+      },
+    });
 
-  return properties.map(property => ({
-    ...property,
-    image:
-      property.images.find(img => img.is_primary)?.image_url ||
-      property.images[0]?.image_url ||
-      null
-  }));
+    return properties.map(property => ({
+      ...property,
+      image:
+        property.images.find(img => img.is_primary)?.image_url ||
+        property.images[0]?.image_url ||
+        null
+    }));
+  } catch (err) {
+    const message = err?.message || '';
+    if (message.includes('public.offers') || message.includes('does not exist') || message.includes('The table')) {
+      const properties = await prisma.property.findMany({
+        include: {
+          images: {
+            orderBy: [
+              { is_primary: "desc" },
+              { display_order: "asc" }
+            ]
+          },
+          inquiries: true,
+        },
+        orderBy: {
+          created_at: "desc",
+        },
+      });
+
+      return properties.map(property => ({
+        ...property,
+        image:
+          property.images.find(img => img.is_primary)?.image_url ||
+          property.images[0]?.image_url ||
+          null
+      }));
+    }
+    throw err;
+  }
 };
 
 export const getPropertyById = async (id) => {
-  const property = await prisma.property.findUnique({
-    where: {
-      property_id: id,
-    },
-    include: {
-      images: {
-        orderBy: [
-          { is_primary: "desc" },
-          { display_order: "asc" }
-        ]
+  try {
+    const property = await prisma.property.findUnique({
+      where: {
+        property_id: id,
       },
-      inquiries: true,
-      offers: true,
-    },
-  });
+      include: {
+        images: {
+          orderBy: [
+            { is_primary: "desc" },
+            { display_order: "asc" }
+          ]
+        },
+        inquiries: true,
+        offers: true,
+      },
+    });
 
-  if (!property) return null;
+    if (!property) return null;
 
-  return {
-    ...property,
-    image:
-      property.images.find(img => img.is_primary)?.image_url ||
-      property.images[0]?.image_url ||
-      null
-  };
+    return {
+      ...property,
+      image:
+        property.images.find(img => img.is_primary)?.image_url ||
+        property.images[0]?.image_url ||
+        null
+    };
+  } catch (err) {
+    const message = err?.message || '';
+    if (message.includes('public.offers') || message.includes('does not exist') || message.includes('The table')) {
+      const property = await prisma.property.findUnique({
+        where: {
+          property_id: id,
+        },
+        include: {
+          images: {
+            orderBy: [
+              { is_primary: "desc" },
+              { display_order: "asc" }
+            ]
+          },
+          inquiries: true,
+        },
+      });
+
+      if (!property) return null;
+
+      return {
+        ...property,
+        image:
+          property.images.find(img => img.is_primary)?.image_url ||
+          property.images[0]?.image_url ||
+          null
+      };
+    }
+    throw err;
+  }
 };
 
 export const getSimilarProperties = async (propertyId, propertyType) => {
