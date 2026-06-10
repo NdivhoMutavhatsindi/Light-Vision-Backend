@@ -1,8 +1,40 @@
 import * as propertyRepository from "../repositories/property.repository.js";
-import prisma from "../config/database.js";
+
+const mapStatusValue = (status) => {
+  if (status == null) return status;
+  const s = String(status).trim().toLowerCase();
+  const map = {
+    available: 'for_sale',
+    'for sale': 'for_sale',
+    'for-sale': 'for_sale',
+    for_sale: 'for_sale',
+    'for_rent': 'for_rent',
+    'for rent': 'for_rent',
+    'for-rent': 'for_rent',
+    for_rent: 'for_rent',
+    sold: 'sold',
+    pending: 'pending',
+    rented: 'rented',
+    'under offer': 'under_offer',
+    'under-offer': 'under_offer',
+    under_offer: 'under_offer',
+    price_adjusted: 'price_adjusted',
+    'price-adjusted': 'price_adjusted',
+  };
+
+  return map[s] ?? status;
+};
+
+const normalizePayloadStatus = (payload) => {
+  if (!payload || typeof payload !== 'object') return payload;
+  const copy = { ...payload };
+  if (copy.status) copy.status = mapStatusValue(copy.status);
+  return copy;
+};
 
 export const createProperty = async (payload) => {
-  const property = await propertyRepository.createProperty(payload);
+  const normalized = normalizePayloadStatus(payload);
+  const property = await propertyRepository.createProperty(normalized);
   return property;
 };
 
@@ -27,16 +59,18 @@ export const getSimilarProperties =
 
 export const updateProperty =
   async (id, payload) => {
+    const normalized = normalizePayloadStatus(payload);
     return await propertyRepository.updateProperty(
       id,
-      payload
+      normalized
     );
   };
 
 export const updatePropertyStatus =
   async (id, status) => {
+    const mapped = mapStatusValue(status);
     return await propertyRepository.updateProperty(id, {
-      status,
+      status: mapped,
     });
   };
 
