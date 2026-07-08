@@ -8,10 +8,19 @@ const __dirname = dirname(__filename);
 
 dotenv.config({ path: resolve(__dirname, "../../.env") });
 
+const rawDatabaseUrl = process.env.DATABASE_URL;
+const databaseUrl = rawDatabaseUrl?.trim().replace(/^['"]|['"]$/g, "") || "";
+
+if (!databaseUrl) {
+  throw new Error(
+    "DATABASE_URL is not set. Set DATABASE_URL to your Neon connection string in the environment."
+  );
+}
+
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: process.env.DATABASE_URL,
+      url: databaseUrl,
     },
   },
 });

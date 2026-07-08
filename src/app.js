@@ -19,6 +19,7 @@ import propertyInquiryRouter from "./routes/inquiry.route.js";
 import contactInquiryRouter from "./routes/contactInquiry.route.js";
 import offerRouter from "./routes/offer.route.js";
 import agentRouter from "./routes/agent.route.js";
+import publicAgentRouter from "./routes/publicAgent.route.js";
 import adminInquiryRouter from "./routes/adminInquiry.route.js";
 import dashboardRouter from "./routes/dashboard.route.js";
 
@@ -67,6 +68,7 @@ app.use("/api/inquiries", propertyInquiryRouter);
 app.use("/api/contact-inquiries", contactInquiryRouter);
 app.use("/api/offers", offerRouter);
 app.use("/api/admin/agents", agentRouter);
+app.use("/api/agents", publicAgentRouter);
 app.use("/api/admin/inquiries", adminInquiryRouter);
 app.use("/api/admin/dashboard", dashboardRouter);
 

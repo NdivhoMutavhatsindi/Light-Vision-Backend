@@ -12,6 +12,9 @@ model Admin {
   admin_id      String   @id @default(uuid())
   email         String   @unique
   password_hash String
+  first_name    String?
+  last_name     String?
+  profile_image String?
   created_at    DateTime @default(now())
   last_login    DateTime?
 

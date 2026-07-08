@@ -1,4 +1,7 @@
-import { loginAdminService } from "../services/admin.service.js";
+import {
+  loginAdminService,
+  updateAdminProfileService,
+} from "../services/admin.service.js";
 
 import {
   successResponse,
@@ -49,5 +52,19 @@ export const logoutAdmin = async (req, res) => {
     return successResponse(res, "Logout successful", null);
   } catch (error) {
     return errorResponse(res, error.message, 500);
+  }
+};
+
+export const updateAdminProfile = async (req, res, next) => {
+  try {
+    const admin = await updateAdminProfileService(
+      req.admin.admin_id,
+      req.body,
+      req.file
+    );
+
+    return successResponse(res, "Profile updated successfully", { admin });
+  } catch (error) {
+    next(error);
   }
 };

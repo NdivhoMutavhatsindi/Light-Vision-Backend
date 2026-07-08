@@ -4,6 +4,7 @@ import {
   loginAdmin,
   getCurrentAdmin,
   logoutAdmin,
+  updateAdminProfile,
 } from "../controllers/admin.controller.js";
 
 import {
@@ -11,6 +12,7 @@ import {
 } from "../validators/admin.validator.js";
 
 import { protectAdmin } from "../middleware/auth.middleware.js";
+import upload from "../middleware/uploadIMG.middleware.js";
 
 const router = express.Router();
 
@@ -29,6 +31,13 @@ router.get(
 router.post(
   "/logout",
   logoutAdmin
+);
+
+router.patch(
+  "/profile",
+  protectAdmin,
+  upload.single("image"),
+  updateAdminProfile
 );
 
 export default router;
