@@ -47,21 +47,11 @@ const allowedOrigins = [...new Set(knownOrigins)];
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps, curl requests, or same-origin navigations)
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else if (process.env.NODE_ENV !== 'production') {
-        // In development, allow all origins for easier debugging
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
+    origin(origin, callback) {
+      console.log('Origin:', origin);
+      callback(null, true);
     },
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
-    optionsSuccessStatus: 200,
   })
 );
 app.use(express.json());
