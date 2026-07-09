@@ -27,19 +27,28 @@ const app = express();
 
 app.set("trust proxy", 1);
 
-const allowedOrigins = [
+const knownOrigins = [
   "http://localhost:5173",
   "http://localhost:5176",
   "http://localhost:5177",
   "http://localhost:3000",
   process.env.CLIENT_URL,
   process.env.FRONTEND_URL,
-].filter(Boolean);
+  process.env.FRONTEND_ORIGIN,
+  process.env.APP_URL,
+  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
+  process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : undefined,
+  process.env.CORS_ALLOWED_ORIGINS,
+]
+  .filter(Boolean)
+  .flatMap((value) => value.split(',').map((url) => url.trim()).filter(Boolean));
+
+const allowedOrigins = [...new Set(knownOrigins)];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
+      // Allow requests with no origin (like mobile apps, curl requests, or same-origin navigations)
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else if (process.env.NODE_ENV !== 'production') {
