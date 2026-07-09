@@ -4,7 +4,7 @@ import cloudinaryIMG
 from "../config/cloudinaryIMG.js";
 
 export const uploadImage =
-  (fileBuffer) => {
+  (fileBuffer, folder = "properties") => {
 
     return new Promise(
       (resolve, reject) => {
@@ -12,7 +12,7 @@ export const uploadImage =
         const stream =
           cloudinaryIMG.uploader.upload_stream(
             {
-              folder: "properties",
+              folder,
             },
 
             (error, result) => {

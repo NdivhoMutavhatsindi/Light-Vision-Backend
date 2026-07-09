@@ -1,12 +1,9 @@
 import bcrypt from "bcryptjs";
 
-import {
-  findAdminByEmail,
-  updateAdminProfile as updateAdminProfileRepo,
-} from "../repositories/admin.repository.js";
-import { uploadImage } from "../helper/uploadIMG.helper.js";
+import {findAdminByEmail, updateAdminProfile} from "../repositories/admin.repository.js";
 
 import generateToken from "../util/generateToken.js";
+import { sanitizeAdmin } from "../util/adminProfileUpdate.js";
 
 export const loginAdminService = async (
   email,
@@ -37,26 +34,14 @@ export const loginAdminService = async (
       email: admin.email,
       first_name: admin.first_name,
       last_name: admin.last_name,
-      profile_image: admin.profile_image,
+      phone: admin.phone,
+      bio: admin.bio,
+      profile_picture_url: admin.profile_picture_url,
     }
   };
 };
 
-export const updateAdminProfileService = async (adminId, payload = {}, file) => {
-  const updateData = {};
-
-  if (payload.first_name !== undefined) {
-    updateData.first_name = payload.first_name?.trim() || null;
-  }
-
-  if (payload.last_name !== undefined) {
-    updateData.last_name = payload.last_name?.trim() || null;
-  }
-
-  if (file) {
-    const result = await uploadImage(file.buffer);
-    updateData.profile_image = result.secure_url;
-  }
-
-  return await updateAdminProfileRepo(adminId, updateData);
+export const updateAdminProfileService = async (admin_id, data) => {
+  const updatedAdmin = await updateAdminProfile(admin_id, data);
+  return sanitizeAdmin(updatedAdmin);
 };

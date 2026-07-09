@@ -4,7 +4,7 @@ import {
   loginAdmin,
   getCurrentAdmin,
   logoutAdmin,
-  updateAdminProfile,
+  updateCurrentAdmin,
 } from "../controllers/admin.controller.js";
 
 import {
@@ -28,16 +28,16 @@ router.get(
   getCurrentAdmin
 );
 
+router.put(
+  "/me",
+  protectAdmin,
+  upload.single("profilePicture"),
+  updateCurrentAdmin
+);
+
 router.post(
   "/logout",
   logoutAdmin
-);
-
-router.patch(
-  "/profile",
-  protectAdmin,
-  upload.single("image"),
-  updateAdminProfile
 );
 
 export default router;

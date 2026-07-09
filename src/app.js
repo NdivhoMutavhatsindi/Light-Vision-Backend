@@ -31,13 +31,19 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5176",
   "http://localhost:5177",
+  "http://localhost:3000",
   process.env.CLIENT_URL,
+  process.env.FRONTEND_URL,
 ].filter(Boolean);
 
 app.use(
   cors({
     origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else if (process.env.NODE_ENV !== 'production') {
+        // In development, allow all origins for easier debugging
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));

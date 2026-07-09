@@ -1,7 +1,6 @@
-import {
-  loginAdminService,
-  updateAdminProfileService,
-} from "../services/admin.service.js";
+import { loginAdminService, updateAdminProfileService } from "../services/admin.service.js";
+import { uploadImage } from "../helper/uploadIMG.helper.js";
+import { buildAdminProfileUpdatePayload, sanitizeAdmin } from "../util/adminProfileUpdate.js";
 
 import {
   successResponse,
@@ -33,10 +32,43 @@ export const loginAdmin = async (req, res) => {
 export const getCurrentAdmin = async (req, res) => {
   try {
     return successResponse(res, "Authenticated admin fetched", {
-      admin: req.admin,
+      admin: sanitizeAdmin(req.admin),
     });
   } catch (error) {
     return errorResponse(res, error.message, 401);
+  }
+};
+
+export const updateCurrentAdmin = async (req, res) => {
+  try {
+    const adminId = req.admin?.admin_id;
+
+    if (!adminId) {
+      return errorResponse(res, "Unauthorized", 401);
+    }
+
+    let profilePictureUrl = null;
+
+    if (req.file) {
+      const uploadResult = await uploadImage(req.file.buffer, "admins");
+      profilePictureUrl = uploadResult.secure_url;
+    }
+
+    const payload = buildAdminProfileUpdatePayload(req.body, profilePictureUrl);
+
+    if (Object.keys(payload).length === 0 && !req.file) {
+      return successResponse(res, "Profile updated", {
+        admin: sanitizeAdmin(req.admin),
+      });
+    }
+
+    const updatedAdmin = await updateAdminProfileService(adminId, payload);
+
+    return successResponse(res, "Profile updated", {
+      admin: updatedAdmin,
+    });
+  } catch (error) {
+    return errorResponse(res, error.message, 400);
   }
 };
 
@@ -52,19 +84,5 @@ export const logoutAdmin = async (req, res) => {
     return successResponse(res, "Logout successful", null);
   } catch (error) {
     return errorResponse(res, error.message, 500);
-  }
-};
-
-export const updateAdminProfile = async (req, res, next) => {
-  try {
-    const admin = await updateAdminProfileService(
-      req.admin.admin_id,
-      req.body,
-      req.file
-    );
-
-    return successResponse(res, "Profile updated successfully", { admin });
-  } catch (error) {
-    next(error);
   }
 };
